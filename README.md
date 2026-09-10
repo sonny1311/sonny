@@ -1,231 +1,126 @@
 # Nadena Games
 
-Zentrales Spieleportal für alle Nadena-Games-Titel mit einer gemeinsamen **Nadena ID**.
+Zentrales Spieleportal für alle Nadena-Games-Titel mit gemeinsamer **Nadena ID**.
 
 ## Ziel
 
-Ein Spieler registriert sich genau **einmal** auf der Nadena-Games-Webseite. Danach soll er alle verbundenen Nadena-Spiele öffnen können, ohne sich dort erneut registrieren oder ein weiteres Passwort anlegen zu müssen.
+Ein Spieler registriert sich genau einmal auf der Nadena-Games-Webseite. Danach startet er verbundene Nadena-Spiele über dieselbe Identität. Die Spiele behalten ihre eigenen Datenbanken, Spielstände, Käufe und lokalen Sessions. Passwörter werden nicht zwischen Spielen kopiert.
 
-Ablauf:
+## Zentrale Infrastruktur
 
-1. Spieler registriert sich auf der Nadena-Games-Webseite.
-2. Nadena ID bleibt eingeloggt.
-3. Spieler wählt ein Spiel aus.
-4. Vor dem Start wird gefragt, ob dieses Spiel mit der Nadena ID geöffnet werden soll.
-5. Nadena erzeugt einen kurzlebigen, einmal verwendbaren SSO-Code.
-6. Das Zielspiel tauscht diesen Code serverseitig gegen sein eigenes lokales Spielkonto / seine lokale Session.
-7. Beim ersten Start wird automatisch ein Spielkonto für die Nadena ID angelegt oder ein bestehendes Konto einmalig verknüpft.
-8. Danach ist keine weitere Registrierung für dieses Spiel nötig.
+Die Nadena ID liegt im bestehenden Supabase-Projekt **Worldprojekt / Orvuno** (`ojhaeccyulyrwoxgeurf`, `eu-west-1`). Es wurde bewusst kein zusätzliches Supabase-Projekt angelegt.
 
-Die einzelnen Spiele behalten ihre eigenen Datenbanken und Spielstände. Es werden keine Passwörter zwischen Spielen kopiert.
+### Tabellen
 
-## Bestehende Infrastruktur
+- `public.nadena_profiles` – zentrales Nadena-Profil pro Auth-Benutzer
+- `public.nadena_games` – zentrales Verzeichnis aller Spiele
+- `public.nadena_game_links` – Zuordnung Nadena ID zu lokalem Spielkonto
+- `private.nadena_sso_codes` – gehashte, kurzlebige Einmal-Codes für SSO
 
-Es wurde **kein neues Supabase-Projekt** angelegt, um zusätzliche monatliche Kosten zu vermeiden.
+### Aktuelle Spiele
 
-Die zentrale Nadena-ID-Struktur liegt im bestehenden Supabase-Projekt **Worldprojekt / Orvuno**:
-
-- Project Ref: `ojhaeccyulyrwoxgeurf`
-- Region: `eu-west-1`
-
-Grund: Orvuno verwendet bereits Supabase Auth und eignet sich deshalb als zentrale Identitätsschicht. Die Nadena-Tabellen sind logisch von den eigentlichen Orvuno-Spieldaten getrennt.
-
-## Bereits angelegte Nadena-Datenbankstruktur
-
-Migration: `add_nadena_identity_and_sso`
-
-Angelegt wurden:
-
-### `public.nadena_profiles`
-Zentrales Nadena-Profil je Supabase-Auth-Benutzer.
-
-Enthält u. a.:
-- `user_id`
-- `display_name`
-- `avatar_url`
-- `language_code`
-- Zeitstempel
-
-Für neue Supabase-Auth-Benutzer wird automatisch ein Nadena-Profil erzeugt.
-Bestehende Auth-Benutzer wurden ebenfalls in `nadena_profiles` übernommen.
-
-### `public.nadena_games`
-Zentrales Verzeichnis aller Nadena-Spiele.
-
-Aktuell eingetragen:
+Das Portal liest alle aktiven Spiele dynamisch aus `public.nadena_games`. Aktuell eingetragen:
 
 - `hofhain` → https://www.hofhain.de/
 - `futnaro` → https://www.futnaro.de/
 - `orvuno` → https://www.orvuno.de/
 - `astrawelle` → https://astrawelle.vercel.app/
 
-Zusätzlich gibt es Felder für Aktivstatus, Reihenfolge und `sso_ready`.
+Neue Spiele sollen künftig nur noch in `nadena_games` aktiviert werden und erscheinen dann automatisch im Portal.
 
-### `public.nadena_game_links`
-Zuordnung zwischen Nadena ID und dem jeweiligen lokalen Spielkonto.
+## Portal
 
-Beispiel:
+Repository: `sonny1311/sonny`
+Branch: `master`
 
-`Nadena User UUID -> hofhain -> Hofhain Player ID`
+Stand 2026-09-10 ist das Portal selbst umgesetzt:
 
-Damit können vorhandene Spielkonten später einmalig verbunden werden und bestehende Spielstände bleiben erhalten.
+- responsive Nadena-Games-Startseite
+- Registrierung und Login über die zentrale Supabase Auth / Nadena ID
+- eingeloggter Benutzerstatus
+- Nadena-Profil und Anzeigename
+- dynamisches Spieleverzeichnis aus `nadena_games`
+- Anzeige bestehender Spielverknüpfungen
+- Spielstart-Flow mit Nadena SSO, sobald `sso_ready=true`
+- Impressum
+- Datenschutzerklärung
+- Nutzungsbedingungen
+- sichere RLS-/Tabellenrechte für die Nadena-Portal-Daten
 
-### `private.nadena_sso_codes`
-Private Tabelle für kurzlebige Einmal-Codes beim Spielstart.
-
-Eigenschaften:
-- Code wird nur gehasht gespeichert.
-- An Nadena-Benutzer und Zielspiel gebunden.
-- Ablaufzeit.
-- `used_at` verhindert Wiederverwendung.
-- Private Tabelle ist nicht direkt für Browser-Clients zugänglich.
-
-### Sicherheit
-
-Für die Nadena-Tabellen wurde RLS aktiviert.
-
-- Spieler dürfen nur ihr eigenes Nadena-Profil lesen/ändern.
-- Spieler dürfen nur ihre eigenen Spielverknüpfungen lesen.
-- Aktive Spiele dürfen öffentlich gelesen werden.
-- SSO-Codes liegen im privaten Schema und sind für `anon` / `authenticated` direkt gesperrt.
-
-## Aktuelle Spiele / Projekte
-
-### Hofhain
-- GitHub: `sonny1311/Hofhain`
-- Supabase: `ufvjjzsrhmarzaaczruj`
-- Webseite: https://www.hofhain.de/
-- Eigene Supabase-Auth-/Cloudsave-Struktur vorhanden.
-- Muss als erstes Spiel an Nadena SSO angebunden werden.
-
-### Futnaro
-- GitHub: `sonny1311/Futnaro`
-- Supabase: `rzvddebtcxtysclxrpfm`
-- Webseite: https://www.futnaro.de/
-- Verwendet aktuell eigene gehashte Bearer-Sessions statt normaler Supabase-Auth-JWTs.
-- Benötigt deshalb einen eigenen Nadena-SSO-Adapter.
-
-### Orvuno
-- GitHub: `sonny1311/Orvuno`
-- Supabase / zentrale Nadena-ID: `ojhaeccyulyrwoxgeurf`
-- Webseite: https://www.orvuno.de/
-- Bestehende Supabase-Auth-Anbindung kann für Nadena ID genutzt werden.
-
-### AstraWelle
-- GitHub: `sonny1311/astrawelle`
-- Supabase: `xesvfgxcqqhmsrdyfjox`
-- Aktuelle Webadresse: https://astrawelle.vercel.app/
-- Verwendet bereits Supabase Auth.
-
-## Nadena-Games-Webseite
-
-Für das Portal wird das bisher praktisch leere Repository verwendet:
-
-- GitHub: `sonny1311/sonny`
-- Branch: `master`
-
-Damit wird die Firmen-/Portal-Webseite nicht mit Orvunos eigentlichem Spielrepository vermischt.
-
-Die erste Portal-Startseite wurde angelegt. Sie enthält aktuell:
-
-- Nadena-Games-Branding
-- Claim „Ein Konto. Alle Spiele.“
-- Spielekarten für Hofhain, Futnaro, Orvuno und AstraWelle
-- Bereich „Nadena ID – Eine Anmeldung für alle Nadena-Spiele“
-
-Dateien im Portal-Repo:
+Dateien:
 
 - `index.html`
 - `style.css`
-- `README.md`
+- `app.js`
+- `impressum.html`
+- `datenschutz.html`
+- `nutzungsbedingungen.html`
 
-## Noch zu erledigen
+## SSO-Backend
 
-### 1. Portal fertigstellen
+Im zentralen Supabase-Projekt sind folgende Edge Functions aktiv:
 
-- richtige Nadena-Domain eintragen, sobald sie feststeht
-- Login / Registrierung über zentrale Supabase Auth anbinden
-- eingeloggten Nutzer anzeigen
-- Spiele dynamisch aus `nadena_games` laden
-- Konto-/Profilbereich
-- Datenschutz / Impressum / Nutzungsbedingungen
-- responsive Desktop-/Tablet-/Mobile-Oberfläche
+### `nadena-sso-issue`
 
-### 2. Nadena SSO Backend
+- verlangt eine gültige Nadena-Session
+- akzeptiert nur aktive Spiele mit `sso_ready=true`
+- erzeugt kryptografisch sicheren Einmal-Code
+- speichert nur SHA-256-Hash des Codes
+- Gültigkeit: 90 Sekunden
+- bindet Code an Nadena-Benutzer und Zielspiel
+- liefert die Start-URL des Zielspiels
 
-Benötigt werden mindestens zwei serverseitige Funktionen:
+### `nadena-sso-exchange`
 
-- `nadena-sso-issue`
-  - verlangt gültige Nadena-Session
-  - nimmt nur registrierte Zielspiele an
-  - erzeugt kryptografisch sicheren Einmal-Code
-  - speichert nur dessen Hash
-  - sehr kurze Gültigkeit, z. B. 60–120 Sekunden
-  - liefert Start-URL des Zielspiels
+- ist für den serverseitigen Adapter des Zielspiels gedacht
+- prüft Einmal-Code, Zielspiel, Ablaufzeit und Wiederverwendung
+- verbraucht den Code atomar
+- liefert nach erfolgreicher Prüfung die stabile Nadena-Identität an den Spielserver
+- verlangt zusätzlich ein spielbezogenes Server-Secret
 
-- `nadena-sso-exchange`
-  - wird serverseitig vom Zielspiel verwendet
-  - nimmt Einmal-Code + `game_slug`
-  - prüft Hash, Ablaufzeit, Zielspiel und Wiederverwendung
-  - markiert Code atomar als benutzt
-  - liefert die stabile `nadena_user_id`
+Dazu wurden die service-role-only Datenbankfunktionen `nadena_sso_store_code` und `nadena_sso_consume_code` angelegt.
 
-Wichtig: Kein langfristiger Nadena-Access-Token darf in einer Spiel-URL landen.
+## Noch offen: Adapter in den einzelnen Spielen
 
-### 3. Hofhain als erstes Spiel vollständig anbinden
+Die zentrale Webseite und der SSO-Kern sind vorhanden. **`sso_ready` bleibt für ein Spiel absichtlich `false`, bis dessen eigener Adapter fertig und getestet ist.** Dadurch wird kein halbfertiger Auto-Login für Spieler freigeschaltet.
 
-Gewünschter Endzustand:
+### Hofhain
 
-`Nadena Games -> Hofhain spielen -> Nachfrage -> Einloggen & starten -> Hofhain automatisch eingeloggt`
+- GitHub: `sonny1311/Hofhain`
+- Supabase: `ufvjjzsrhmarzaaczruj`
+- eigene Supabase-Auth-/Cloudsave-Struktur
+- Adapter muss Nadena-Code serverseitig austauschen und eine normale Hofhain-Session herstellen
+- bestehende Spieler müssen ihren vorhandenen Hof einmalig verknüpfen können
 
-Dabei:
-- vorhandenes Hofhain-Konto auf Wunsch einmalig verbinden
-- neuer Nadena-Spieler bekommt automatisch Hofhain-Spielkonto
-- Spielstand bleibt in Hofhains eigener Datenbank
-- Nadena ID wird in Hofhain dauerhaft als externe Identität hinterlegt
+### Futnaro
 
-### 4. Futnaro anbinden
+- GitHub: `sonny1311/Futnaro`
+- Supabase: `rzvddebtcxtysclxrpfm`
+- eigenes gehashtes Bearer-Session-System
+- benötigt einen eigenen Nadena-Adapter, der nach dem Code-Austausch eine normale Futnaro-Session erzeugt
 
-Da Futnaro ein eigenes Session-System verwendet, muss nach erfolgreichem Nadena-Code-Austausch eine normale Futnaro-Session erzeugt werden.
+### Orvuno
 
-### 5. Orvuno anbinden
+- GitHub: `sonny1311/Orvuno`
+- Supabase: `ojhaeccyulyrwoxgeurf`
+- nutzt dieselbe Supabase-Auth-Basis wie Nadena ID und ist daher der direkteste Adapter
 
-Orvuno ist wegen gemeinsamer Supabase-Auth-Basis der einfachste weitere Kandidat.
+### AstraWelle
 
-### 6. AstraWelle anbinden
-
-AstraWelle verwendet ebenfalls Supabase Auth und bekommt einen entsprechenden Nadena-ID-Link / SSO-Adapter.
+- GitHub: `sonny1311/astrawelle`
+- Supabase: `xesvfgxcqqhmsrdyfjox`
+- eigene Supabase Auth; benötigt lokalen Nadena-Adapter
 
 ## Bestehende Spieler
 
-Bestehende Spieler dürfen ihren Fortschritt nicht verlieren.
+Bestehende Spielstände dürfen nicht verloren gehen. Deshalb gilt pro Spiel:
 
-Deshalb muss jedes Spiel eine einmalige Funktion anbieten:
+1. Neuer Nadena-Spieler: lokales Spielkonto automatisch anlegen.
+2. Bestehender Spieler: vorhandenes lokales Konto einmalig mit Nadena ID verbinden.
+3. Danach: Klick im Nadena-Portal → Einmal-Code → lokaler Adapter → bestehende lokale Session → Spiel startet angemeldet.
 
-**„Bestehendes Spielkonto mit Nadena ID verbinden“**
+`public.nadena_game_links` speichert die dauerhafte Verknüpfung zwischen Nadena ID und lokalem Spielkonto.
 
-Nach erfolgreicher Verknüpfung wird der lokale Account in `nadena_game_links` hinterlegt. Danach startet der Spieler das Spiel immer über seine Nadena ID.
+## Deployment
 
-## Architektur-Grundsatz
-
-Nadena Games ist die zentrale Identität und der Spiele-Hub.
-
-Die Spiele bleiben technisch eigenständig:
-
-- eigene Spielstände
-- eigene Tabellen
-- eigene Wirtschaftssysteme
-- eigene Premium-/Store-Systeme
-- eigene Sessions nach erfolgreichem SSO-Austausch
-
-Nur die Identität wird zentral verbunden.
-
-## Stand 2026-09-08
-
-- Entscheidung: **kein zusätzliches Supabase-Projekt**.
-- Nadena ID nutzt Worldprojekt / Orvuno Supabase.
-- Nadena-Datenbankschema ist angelegt.
-- vier Spiele sind im zentralen Spieleverzeichnis eingetragen.
-- erstes Nadena-Games-Portal liegt im Repo `sonny1311/sonny`.
-- endgültige Nadena-Domain wird noch vom Betreiber eingerichtet.
-- echter SSO-Spielstart ist als nächster Arbeitsschritt vorgesehen.
+Zum Stand 2026-09-10 existiert im verbundenen Vercel-Team noch kein eigenes Projekt für das Repository `sonny1311/sonny`. Die vorhandenen Vercel-Projekte sind Orvuno, Hofhain, Futnaro und AstraWelle. Das Portal muss daher noch mit einem Hosting-/Domain-Projekt verbunden werden, bevor diese Fassung öffentlich live ist.
