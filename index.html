@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#090d18">
+  <meta name="theme-color" content="#060816">
   <meta name="description" content="Nadena Games – ein Konto für Hofhain, Futnaro, Orvuno, AstraWelle und weitere Nadena-Spiele.">
-  <title>Nadena Games – Ein Konto. Alle Spiele.</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <title>Nadena Games – Ein Konto. Alle Welten.</title>
+  <link rel="stylesheet" href="style.css?v=3">
   <script src="app.js?v=2" defer></script>
 </head>
 <body>
+  <div class="ambient" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Nadena Games Startseite"><span>N</span><strong>Nadena Games</strong></a>
     <nav aria-label="Hauptnavigation">
-      <a href="#spiele">Spiele</a>
+      <a href="#spiele">Welten</a>
       <a href="#konto">Nadena ID</a>
       <button id="headerAuthButton" class="nav-button" type="button">Anmelden</button>
     </nav>
@@ -22,30 +23,40 @@
   <main id="top">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">NADENA GAMES</p>
-        <h1>Ein Konto.<br>Alle Spiele.</h1>
-        <p class="lead">Melde dich einmal mit deiner Nadena ID an und starte alle verbundenen Nadena-Spiele von einem Ort.</p>
+        <div class="hero-badge"><span></span>NADENA GAMES NETWORK</div>
+        <h1>Deine Spiele.<br><em>Eine Identität.</em></h1>
+        <p class="lead">Eine Nadena ID verbindet deine Welten. Einmal anmelden, Spiel wählen und direkt loslegen – ohne Kontowirrwarr, ohne zweiten Login.</p>
         <div class="hero-actions">
-          <a class="button" href="#spiele">Spiele entdecken</a>
+          <a class="button" href="#spiele"><span>Welten entdecken</span><b>→</b></a>
           <button id="heroAuthButton" class="button secondary" type="button">Nadena ID erstellen</button>
         </div>
         <div class="trust-row" aria-label="Vorteile der Nadena ID">
-          <span>✓ Ein Login</span><span>✓ Spielstände bleiben im jeweiligen Spiel</span><span>✓ Keine Passwörter zwischen Spielen</span>
+          <span><b>01</b> Ein Login</span><span><b>02</b> Eigene Spielstände</span><span><b>03</b> Sicher verbunden</span>
         </div>
       </div>
-      <aside class="identity-card" aria-label="Nadena ID Status">
-        <div class="identity-icon">N</div>
-        <p class="eyebrow">NADENA ID</p>
-        <h2 id="identityTitle">Noch nicht angemeldet</h2>
-        <p id="identityText">Einmal registrieren, danach alle verbundenen Spiele mit derselben Identität starten.</p>
-        <button id="identityAction" class="button compact" type="button">Anmelden oder registrieren</button>
-      </aside>
+
+      <div class="hero-stage" aria-label="Nadena Games Welten">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="core-logo"><span>N</span><small>NADENA ID</small></div>
+        <div class="world world-hofhain"><b>🌾</b><span>Hofhain</span></div>
+        <div class="world world-futnaro"><b>⚽</b><span>Futnaro</span></div>
+        <div class="world world-orvuno"><b>🌍</b><span>Orvuno</span></div>
+        <div class="world world-astra"><b>✨</b><span>AstraWelle</span></div>
+        <div class="stage-glow"></div>
+      </div>
+    </section>
+
+    <section class="network-strip" aria-label="Nadena Games Vorteile">
+      <div><strong>4</strong><span>Welten im Netzwerk</span></div>
+      <div><strong>1</strong><span>Nadena ID</span></div>
+      <div><strong>∞</strong><span>Fortschritt & Entwicklung</span></div>
+      <div><strong>24/7</strong><span>Deine Welten erreichbar</span></div>
     </section>
 
     <section id="spiele" class="games-section">
       <div class="section-heading">
-        <div><p class="eyebrow">UNSERE SPIELE</p><h2>Wähle deine Welt</h2></div>
-        <p>Die Liste wird direkt aus dem zentralen Nadena-Spieleverzeichnis geladen. Neue aktive Spiele erscheinen hier automatisch.</p>
+        <div><p class="eyebrow">DEINE WELTEN</p><h2>Wähle, wer du heute sein willst.</h2></div>
+        <p>Vom eigenen Hof über den Fußballverein bis zur Wirtschafts- und Weltraumwelt: Jede Welt spielt sich anders – deine Nadena ID verbindet sie.</p>
       </div>
       <div id="gamesGrid" class="grid" aria-live="polite">
         <div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div>
@@ -53,17 +64,31 @@
       <p id="gamesMessage" class="status-line" role="status"></p>
     </section>
 
+    <section class="experience-section">
+      <div class="experience-visual">
+        <div class="glass-card card-back"><span>PLAY</span><strong>Deine Welt wartet.</strong></div>
+        <div class="glass-card card-front"><div class="mini-logo">N</div><span>NADENA ID</span><strong>Ein Konto.<br>Alle Spiele.</strong><small>Verbinden. Starten. Weiterspielen.</small></div>
+      </div>
+      <div class="experience-copy">
+        <p class="eyebrow">EINE IDENTITÄT</p>
+        <h2>Kein zweites Konto.<br>Kein zweiter Gedanke.</h2>
+        <p>Die Nadena ID wird zum Eingang in alle verbundenen Nadena-Welten. Deine Spielstände und Käufe bleiben dort, wo sie hingehören – im jeweiligen Spiel. Nadena verbindet nur die Identität.</p>
+        <div class="feature-list"><span><b>✓</b> Zentrale Anmeldung</span><span><b>✓</b> Direkter Spielstart</span><span><b>✓</b> Bestehende Spielstände bleiben erhalten</span></div>
+      </div>
+    </section>
+
     <section id="konto" class="account">
-      <div>
+      <div class="account-copy">
         <p class="eyebrow">NADENA ID</p>
-        <h2>Eine Anmeldung für alle Nadena-Spiele</h2>
-        <p>Deine Nadena ID ist die zentrale Identität. Die eigentlichen Spielstände, Käufe und Spielfortschritte bleiben weiterhin im jeweiligen Spiel.</p>
+        <h2>Dein Schlüssel zu allen Welten.</h2>
+        <p>Einmal registrieren. Danach führt dich Nadena direkt in deine verbundenen Spiele. Sicher, schnell und ohne Passwörter zwischen den Spielen zu kopieren.</p>
       </div>
       <div id="accountGuest" class="account-panel">
-        <h3>Deine Nadena ID</h3>
-        <p>Registriere dich einmal oder melde dich mit einem bestehenden Orvuno-/Nadena-Konto an.</p>
+        <div class="panel-icon">N</div>
+        <h3>Starte mit deiner Nadena ID</h3>
+        <p>Erstelle dein zentrales Konto oder melde dich mit einem bestehenden Nadena-/Orvuno-Konto an.</p>
         <button class="button compact" data-open-auth="register" type="button">Kostenlos registrieren</button>
-        <button class="text-button" data-open-auth="login" type="button">Ich habe schon ein Konto</button>
+        <button class="text-button" data-open-auth="login" type="button">Ich habe schon ein Konto →</button>
       </div>
       <div id="accountUser" class="account-panel hidden">
         <div class="user-badge"><span id="userInitial">N</span><div><small>Angemeldet als</small><strong id="userName">Spieler</strong><em id="userEmail"></em></div></div>
@@ -75,10 +100,17 @@
         <button id="logoutButton" class="text-button danger" type="button">Abmelden</button>
       </div>
     </section>
+
+    <section class="final-cta">
+      <p class="eyebrow">NADENA GAMES</p>
+      <h2>Vier Welten.<br><span>Eine Zukunft.</span></h2>
+      <p>Das Netzwerk wächst. Neue Nadena-Spiele erscheinen automatisch hier, sobald sie bereit sind.</p>
+      <a href="#spiele" class="button">Jetzt Welt auswählen <b>→</b></a>
+    </section>
   </main>
 
   <footer>
-    <div><strong>Nadena Games</strong><span>© <span id="year"></span> Nadena Games</span></div>
+    <div class="footer-brand"><span>N</span><div><strong>Nadena Games</strong><small>© <span id="year"></span> Nadena Games</small></div></div>
     <nav aria-label="Rechtliches"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="nutzungsbedingungen.html">Nutzungsbedingungen</a></nav>
   </footer>
 
