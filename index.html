@@ -1,24 +1,114 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1020">
-<title>Nadena Games</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090d18">
+  <meta name="description" content="Nadena Games – ein Konto für Hofhain, Futnaro, Orvuno, AstraWelle und weitere Nadena-Spiele.">
+  <title>Nadena Games – Ein Konto. Alle Spiele.</title>
+  <link rel="stylesheet" href="style.css?v=2">
+  <script src="app.js?v=2" defer></script>
 </head>
 <body>
-<header><div class="brand"><span>N</span><strong>Nadena Games</strong></div><nav><a href="#spiele">Spiele</a><a href="#konto">Nadena ID</a></nav></header>
-<main>
-<section class="hero"><p class="eyebrow">NADENA GAMES</p><h1>Ein Konto. Alle Spiele.</h1><p class="lead">Deine zentrale Spielwelt für Hofhain, Futnaro, Orvuno, AstraWelle und kommende Nadena-Spiele.</p><a class="button" href="#spiele">Spiele entdecken</a></section>
-<section id="spiele"><p class="eyebrow">UNSERE SPIELE</p><h2>Wähle deine Welt</h2><div class="grid">
-<a class="card" href="https://www.hofhain.de/"><span>🌾</span><h3>Hofhain</h3><p>Baue deinen eigenen Bauernhof auf und entwickle ihn Schritt für Schritt.</p><b>Spielen →</b></a>
-<a class="card" href="https://www.futnaro.de/"><span>⚽</span><h3>Futnaro</h3><p>Übernimm deinen Fußballverein und führe ihn nach oben.</p><b>Spielen →</b></a>
-<a class="card" href="https://www.orvuno.de/"><span>🌍</span><h3>Orvuno</h3><p>Eine wachsende Online-Welt mit Wirtschaft und Gemeinschaft.</p><b>Spielen →</b></a>
-<a class="card" href="https://astrawelle.vercel.app/"><span>✨</span><h3>AstraWelle</h3><p>Entdecke eine neue Nadena-Spielwelt.</p><b>Spielen →</b></a>
-</div></section>
-<section id="konto" class="account"><p class="eyebrow">NADENA ID</p><h2>Eine Anmeldung für alle Nadena-Spiele</h2><p>Die zentrale Nadena-ID wird mit den einzelnen Spielkonten verbunden. Bestehende Spielstände bleiben erhalten.</p></section>
-</main>
-<footer>© Nadena Games</footer>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Nadena Games Startseite"><span>N</span><strong>Nadena Games</strong></a>
+    <nav aria-label="Hauptnavigation">
+      <a href="#spiele">Spiele</a>
+      <a href="#konto">Nadena ID</a>
+      <button id="headerAuthButton" class="nav-button" type="button">Anmelden</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">NADENA GAMES</p>
+        <h1>Ein Konto.<br>Alle Spiele.</h1>
+        <p class="lead">Melde dich einmal mit deiner Nadena ID an und starte alle verbundenen Nadena-Spiele von einem Ort.</p>
+        <div class="hero-actions">
+          <a class="button" href="#spiele">Spiele entdecken</a>
+          <button id="heroAuthButton" class="button secondary" type="button">Nadena ID erstellen</button>
+        </div>
+        <div class="trust-row" aria-label="Vorteile der Nadena ID">
+          <span>✓ Ein Login</span><span>✓ Spielstände bleiben im jeweiligen Spiel</span><span>✓ Keine Passwörter zwischen Spielen</span>
+        </div>
+      </div>
+      <aside class="identity-card" aria-label="Nadena ID Status">
+        <div class="identity-icon">N</div>
+        <p class="eyebrow">NADENA ID</p>
+        <h2 id="identityTitle">Noch nicht angemeldet</h2>
+        <p id="identityText">Einmal registrieren, danach alle verbundenen Spiele mit derselben Identität starten.</p>
+        <button id="identityAction" class="button compact" type="button">Anmelden oder registrieren</button>
+      </aside>
+    </section>
+
+    <section id="spiele" class="games-section">
+      <div class="section-heading">
+        <div><p class="eyebrow">UNSERE SPIELE</p><h2>Wähle deine Welt</h2></div>
+        <p>Die Liste wird direkt aus dem zentralen Nadena-Spieleverzeichnis geladen. Neue aktive Spiele erscheinen hier automatisch.</p>
+      </div>
+      <div id="gamesGrid" class="grid" aria-live="polite">
+        <div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div>
+      </div>
+      <p id="gamesMessage" class="status-line" role="status"></p>
+    </section>
+
+    <section id="konto" class="account">
+      <div>
+        <p class="eyebrow">NADENA ID</p>
+        <h2>Eine Anmeldung für alle Nadena-Spiele</h2>
+        <p>Deine Nadena ID ist die zentrale Identität. Die eigentlichen Spielstände, Käufe und Spielfortschritte bleiben weiterhin im jeweiligen Spiel.</p>
+      </div>
+      <div id="accountGuest" class="account-panel">
+        <h3>Deine Nadena ID</h3>
+        <p>Registriere dich einmal oder melde dich mit einem bestehenden Orvuno-/Nadena-Konto an.</p>
+        <button class="button compact" data-open-auth="register" type="button">Kostenlos registrieren</button>
+        <button class="text-button" data-open-auth="login" type="button">Ich habe schon ein Konto</button>
+      </div>
+      <div id="accountUser" class="account-panel hidden">
+        <div class="user-badge"><span id="userInitial">N</span><div><small>Angemeldet als</small><strong id="userName">Spieler</strong><em id="userEmail"></em></div></div>
+        <form id="profileForm" class="profile-form">
+          <label for="displayName">Anzeigename</label>
+          <div class="inline-field"><input id="displayName" name="displayName" maxlength="40" autocomplete="nickname"><button class="small-button" type="submit">Speichern</button></div>
+        </form>
+        <div id="linkedGames" class="linked-games"></div>
+        <button id="logoutButton" class="text-button danger" type="button">Abmelden</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Nadena Games</strong><span>© <span id="year"></span> Nadena Games</span></div>
+    <nav aria-label="Rechtliches"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="nutzungsbedingungen.html">Nutzungsbedingungen</a></nav>
+  </footer>
+
+  <dialog id="authDialog" class="auth-dialog">
+    <button id="closeAuth" class="dialog-close" type="button" aria-label="Schließen">×</button>
+    <div class="auth-tabs" role="tablist">
+      <button id="loginTab" class="active" type="button" role="tab">Anmelden</button>
+      <button id="registerTab" type="button" role="tab">Registrieren</button>
+    </div>
+    <div id="loginPane" class="auth-pane">
+      <p class="eyebrow">NADENA ID</p><h2>Willkommen zurück</h2>
+      <form id="loginForm">
+        <label>E-Mail<input name="email" type="email" autocomplete="email" required></label>
+        <label>Passwort<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button full" type="submit">Anmelden</button>
+      </form>
+    </div>
+    <div id="registerPane" class="auth-pane hidden">
+      <p class="eyebrow">NADENA ID</p><h2>Konto erstellen</h2>
+      <form id="registerForm">
+        <label>Anzeigename<input name="displayName" minlength="1" maxlength="40" autocomplete="nickname" required></label>
+        <label>E-Mail<input name="email" type="email" autocomplete="email" required></label>
+        <label>Passwort<input name="password" type="password" minlength="10" autocomplete="new-password" required></label>
+        <label class="check"><input name="terms" type="checkbox" required><span>Ich akzeptiere die <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a> und habe die <a href="datenschutz.html">Datenschutzerklärung</a> gelesen.</span></label>
+        <button class="button full" type="submit">Nadena ID erstellen</button>
+      </form>
+    </div>
+    <p id="authMessage" class="form-message" role="status"></p>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
