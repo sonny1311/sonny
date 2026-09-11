@@ -1,10 +1,10 @@
 (() => {
   'use strict';
   const GAME = {
-    hofhain: { image: 'assets/hofhain.webp?v=5', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen' },
-    orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen' },
-    futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald' },
-    astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald' }
+    hofhain: { image: 'assets/hofhain.webp?v=5', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
+    orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.orvuno.de/' },
+    futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald', launch: 'https://www.futnaro.de/' },
+    astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald', launch: 'https://astrawelle.vercel.app/' }
   };
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
@@ -57,9 +57,23 @@
         clone.classList.add('coming-soon');
         button.replaceWith(clone);
         card.classList.add('is-coming-soon');
-      } else {
-        button.textContent = cfg.label;
+        return;
       }
+
+      const nadenaSsoReady = /Nadena ID/i.test(button.textContent || '');
+      if (nadenaSsoReady) {
+        button.textContent = 'Mit Nadena ID spielen';
+        return;
+      }
+
+      // Noch kein SSO-Adapter: den vorhandenen Portal-Login-Handler entfernen.
+      // So meldet sich der Spieler nur einmal im eigentlichen Spiel an.
+      const directButton = button.cloneNode(true);
+      directButton.textContent = cfg.label;
+      directButton.addEventListener('click', () => {
+        window.location.href = cfg.launch;
+      });
+      button.replaceWith(directButton);
     });
   }
   function upgradeBrand() {
