@@ -1,10 +1,10 @@
 (() => {
   'use strict';
   const GAME = {
-    hofhain: { image: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen' },
-    orvuno: { image: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen' },
-    futnaro: { image: 'assets/futnaro.jpg', available: false, label: 'Kommt bald' },
-    astrawelle: { image: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald' }
+    hofhain: { image: 'assets/hofhain.webp', available: true, label: 'Jetzt spielen' },
+    orvuno: { image: 'assets/orvuno.webp', available: true, label: 'Jetzt spielen' },
+    futnaro: { image: 'assets/futnaro.webp', available: false, label: 'Kommt bald' },
+    astrawelle: { image: 'assets/astrawelle.webp', available: false, label: 'Kommt bald' }
   };
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
