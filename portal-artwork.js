@@ -1,10 +1,10 @@
 (() => {
   'use strict';
   const GAME = {
-    hofhain: { image: 'assets/hofhain.webp?v=4', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen' },
-    orvuno: { image: 'assets/orvuno.webp?v=4', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen' },
-    futnaro: { image: 'assets/futnaro.webp?v=4', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald' },
-    astrawelle: { image: 'assets/astrawelle.webp?v=4', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald' }
+    hofhain: { image: 'assets/hofhain.webp?v=5', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen' },
+    orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen' },
+    futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald' },
+    astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald' }
   };
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
@@ -53,10 +53,13 @@
         const clone = button.cloneNode(true);
         clone.textContent = 'Kommt bald';
         clone.disabled = true;
+        clone.setAttribute('aria-disabled', 'true');
         clone.classList.add('coming-soon');
         button.replaceWith(clone);
         card.classList.add('is-coming-soon');
-      } else button.textContent = cfg.label;
+      } else {
+        button.textContent = cfg.label;
+      }
     });
   }
   function upgradeBrand() {
@@ -64,10 +67,10 @@
       if (el.querySelector('img')) return;
       el.textContent = '';
       el.classList.add('real-brandmark');
-      el.innerHTML = '<img src="assets/nadena-games-logo.jpg?v=4" alt="">';
+      el.innerHTML = '<img src="assets/nadena-games-logo.jpg?v=5" alt="">';
     });
     const core = document.querySelector('.core-logo');
-    if (core && !core.querySelector('img')) core.innerHTML = '<img src="assets/nadena-games-logo.jpg?v=4" alt="Nadena Games"><small>NADENA ID</small>';
+    if (core && !core.querySelector('img')) core.innerHTML = '<img src="assets/nadena-games-logo.jpg?v=5" alt="Nadena Games"><small>NADENA ID</small>';
     document.querySelectorAll('.hero-stage .world').forEach((world) => {
       const text = (world.textContent || '').toLowerCase();
       const slug = Object.keys(GAME).find((key) => text.includes(key));
@@ -79,7 +82,8 @@
   }
   const observer = new MutationObserver(upgradeCards);
   function init() {
-    upgradeBrand(); upgradeCards();
+    upgradeBrand();
+    upgradeCards();
     const grid = document.getElementById('gamesGrid');
     if (grid) observer.observe(grid, { childList: true, subtree: true });
   }
