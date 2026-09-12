@@ -4,7 +4,7 @@
     hofhain: { image: 'assets/hofhain.webp?v=5', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
     orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.orvuno.de/' },
     futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald', launch: 'https://www.futnaro.de/' },
-    astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald', launch: 'https://astrawelle.vercel.app/' }
+    astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald', launch: 'https://www.astrawelle.de/' }
   };
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
