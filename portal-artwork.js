@@ -56,7 +56,14 @@
   function upgradeCards() {
     document.querySelectorAll('#gamesGrid .game-card').forEach((card) => {
       const slug = slugFor(card), cfg = GAME[slug];
-      if (!cfg || card.dataset.artworkReady === '1') return;
+      if (!cfg) return;
+
+      card.querySelectorAll('.availability').forEach((badge) => badge.remove());
+      card.querySelectorAll('.game-meta .pill').forEach((pill) => {
+        if (/kommt bald/i.test(pill.textContent || '')) pill.remove();
+      });
+
+      if (card.dataset.artworkReady === '1') return;
       card.dataset.artworkReady = '1';
       card.dataset.game = slug;
       const icon = card.querySelector('.game-icon');
@@ -64,10 +71,6 @@
         const art = document.createElement('div');
         art.className = 'game-art';
         art.appendChild(safeImage(cfg.image, cfg.fallback));
-        const badge = document.createElement('span');
-        badge.className = `availability ${cfg.available ? 'live' : 'soon'}`;
-        badge.textContent = cfg.available ? 'Spielbar' : 'Kommt bald';
-        art.appendChild(badge);
         icon.replaceWith(art);
       }
       const button = card.querySelector('.play-button');
@@ -89,8 +92,6 @@
         return;
       }
 
-      // Noch kein SSO-Adapter: den vorhandenen Portal-Login-Handler entfernen.
-      // So meldet sich der Spieler nur einmal im eigentlichen Spiel an.
       const directButton = button.cloneNode(true);
       directButton.textContent = cfg.label;
       directButton.addEventListener('click', () => {
