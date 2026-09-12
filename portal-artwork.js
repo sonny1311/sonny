@@ -6,6 +6,29 @@
     futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald', launch: 'https://www.futnaro.de/' },
     astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald', launch: 'https://www.astrawelle.de/' }
   };
+  const ASTRA_OLD = 'https://astrawelle.vercel.app';
+  const ASTRA_NEW = 'https://www.astrawelle.de';
+  const NADENA_LOGO = 'https://www.nadena-games.de/assets/nadena-games-logo.jpg';
+
+  function normalizeStructuredData() {
+    const normalize = (value) => {
+      if (typeof value === 'string') return value.replaceAll(ASTRA_OLD, ASTRA_NEW);
+      if (Array.isArray(value)) return value.map(normalize);
+      if (!value || typeof value !== 'object') return value;
+      const next = {};
+      for (const [key, item] of Object.entries(value)) next[key] = normalize(item);
+      if (next['@type'] === 'Organization' && String(next.name || '').toLowerCase() === 'nadena games') {
+        next.logo = NADENA_LOGO;
+      }
+      return next;
+    };
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
+      try {
+        script.textContent = JSON.stringify(normalize(JSON.parse(script.textContent || '{}')));
+      } catch (_) {}
+    });
+  }
+
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
     if (title.includes('hofhain')) return 'hofhain';
@@ -96,6 +119,7 @@
   }
   const observer = new MutationObserver(upgradeCards);
   function init() {
+    normalizeStructuredData();
     upgradeBrand();
     upgradeCards();
     const grid = document.getElementById('gamesGrid');
