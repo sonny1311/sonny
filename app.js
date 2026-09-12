@@ -4,12 +4,12 @@
   const SUPABASE_URL = 'https://ojhaeccyulyrwoxgeurf.supabase.co';
   const PUBLISHABLE_KEY = 'sb_publishable_JZH6Ker5-yZoNY6sQFhVTA_YKnImI3z';
   const SESSION_KEY = 'nadena_games_session_v1';
-  const PUBLISHED_GAMES = new Set(['hofhain', 'orvuno']);
+  const PUBLISHED_GAMES = new Set(['hofhain', 'futnaro', 'orvuno', 'astrawelle']);
   const FALLBACK_GAMES = [
     {slug:'hofhain',title:'Hofhain',description:'Baue deinen eigenen Hof auf, bewirtschafte Äcker, halte Tiere und entwickle deinen Bauernhof.',launch_url:'https://www.hofhain.de/',cover_emoji:'🌾',active:true,sso_ready:false,sort_order:10},
     {slug:'futnaro',title:'Futnaro',description:'Übernimm deinen Fußballverein und führe ihn sportlich und wirtschaftlich nach oben.',launch_url:'https://www.futnaro.de/',cover_emoji:'⚽',active:true,sso_ready:false,sort_order:20},
     {slug:'orvuno',title:'Orvuno',description:'Eine wachsende Online-Welt mit Wirtschaft, Gemeinschaft und langfristiger Entwicklung.',launch_url:'https://www.orvuno.de/',cover_emoji:'🌍',active:true,sso_ready:false,sort_order:30},
-    {slug:'astrawelle',title:'AstraWelle',description:'Entdecke AstraWelle und entwickle deinen Fortschritt in einer neuen Spielwelt.',launch_url:'https://astrawelle.vercel.app/',cover_emoji:'✨',active:true,sso_ready:false,sort_order:40},
+    {slug:'astrawelle',title:'AstraWelle',description:'Entdecke AstraWelle und entwickle deinen Fortschritt in einer neuen Spielwelt.',launch_url:'https://www.astrawelle.de/',cover_emoji:'✨',active:true,sso_ready:false,sort_order:40},
   ];
 
   const $ = (id) => document.getElementById(id);
