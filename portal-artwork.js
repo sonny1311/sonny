@@ -29,6 +29,14 @@
     });
   }
 
+  function normalizePortalCopy() {
+    document.querySelectorAll('.account-panel p').forEach((p) => {
+      if (/Nadena-\/Orvuno-Konto/i.test(p.textContent || '')) {
+        p.textContent = 'Erstelle dein zentrales Konto oder melde dich mit deiner bestehenden Nadena ID an.';
+      }
+    });
+  }
+
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
     if (title.includes('hofhain')) return 'hofhain';
@@ -121,6 +129,7 @@
   const observer = new MutationObserver(upgradeCards);
   function init() {
     normalizeStructuredData();
+    normalizePortalCopy();
     upgradeBrand();
     upgradeCards();
     const grid = document.getElementById('gamesGrid');
