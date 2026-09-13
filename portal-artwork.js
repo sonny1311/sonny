@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const HOFHAIN_GENERATED = '__hofhain_generated__';
   const GAME = {
-    hofhain: { image: 'assets/hofhain.webp?v=5', fallback: 'assets/hofhain.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
+    hofhain: { image: HOFHAIN_GENERATED, fallback: '', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
     orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.orvuno.de/' },
     futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald', launch: 'https://www.futnaro.de/' },
     astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: false, label: 'Kommt bald', launch: 'https://www.astrawelle.de/' }
@@ -9,6 +10,18 @@
   const ASTRA_OLD = 'https://astrawelle.vercel.app';
   const ASTRA_NEW = 'https://www.astrawelle.de';
   const NADENA_LOGO = 'https://www.nadena-games.de/assets/nadena-games-logo.jpg';
+  let hofhainArtworkPromise = null;
+
+  function loadHofhainArtwork() {
+    if (hofhainArtworkPromise) return hofhainArtworkPromise;
+    hofhainArtworkPromise = Promise.all(
+      [0, 1, 2, 3, 4, 5].map((part) => fetch(`assets/hofhain-eckig.b64.${part}?v=1`, { cache: 'force-cache' }).then((response) => {
+        if (!response.ok) throw new Error(`hofhain_artwork_part_${part}`);
+        return response.text();
+      }))
+    ).then((parts) => `data:image/webp;base64,${parts.join('').replace(/\s+/g, '')}`);
+    return hofhainArtworkPromise;
+  }
 
   function normalizeStructuredData() {
     const normalize = (value) => {
@@ -45,22 +58,29 @@
     if (title.includes('astrawelle')) return 'astrawelle';
     return '';
   };
-  function safeImage(src, fallback) {
+
+  function safeImage(src, fallback, eager = false) {
     const img = document.createElement('img');
     img.alt = '';
-    img.loading = 'lazy';
+    img.loading = eager ? 'eager' : 'lazy';
     img.decoding = 'async';
-    img.src = src;
+    const fail = () => img.closest('.game-art')?.classList.add('image-failed');
     img.onerror = () => {
       if (fallback && img.dataset.fallback !== '1') {
         img.dataset.fallback = '1';
         img.src = fallback;
       } else {
-        img.closest('.game-art')?.classList.add('image-failed');
+        fail();
       }
     };
+    if (src === HOFHAIN_GENERATED) {
+      loadHofhainArtwork().then((url) => { img.src = url; }).catch(fail);
+    } else {
+      img.src = src;
+    }
     return img;
   }
+
   function upgradeCards() {
     document.querySelectorAll('#gamesGrid .game-card').forEach((card) => {
       const slug = slugFor(card), cfg = GAME[slug];
@@ -108,6 +128,11 @@
       button.replaceWith(directButton);
     });
   }
+
+  function worldLabel(slug) {
+    return slug === 'astrawelle' ? 'AstraWelle' : slug.charAt(0).toUpperCase() + slug.slice(1);
+  }
+
   function upgradeBrand() {
     document.querySelectorAll('.brand span, .footer-brand > span').forEach((el) => {
       if (el.querySelector('img')) return;
@@ -122,10 +147,20 @@
       const slug = Object.keys(GAME).find((key) => text.includes(key));
       if (!slug) return;
       const cfg = GAME[slug];
-      world.innerHTML = `<img src="${cfg.image}" alt=""><span>${slug === 'astrawelle' ? 'AstraWelle' : slug.charAt(0).toUpperCase()+slug.slice(1)}</span>${cfg.available ? '' : '<em>Kommt bald</em>'}`;
-      if (!cfg.available) world.classList.add('world-soon');
+      world.textContent = '';
+      world.appendChild(safeImage(cfg.image, cfg.fallback, true));
+      const label = document.createElement('span');
+      label.textContent = worldLabel(slug);
+      world.appendChild(label);
+      if (!cfg.available) {
+        const badge = document.createElement('em');
+        badge.textContent = 'Kommt bald';
+        world.appendChild(badge);
+        world.classList.add('world-soon');
+      }
     });
   }
+
   const observer = new MutationObserver(upgradeCards);
   function init() {
     normalizeStructuredData();
