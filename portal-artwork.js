@@ -69,11 +69,11 @@
     });
   }
 
-  function loadNadenaInbox() {
-    if (document.querySelector('script[data-nadena-inbox],script[src*="nadena-inbox.js"]')) return;
+  function loadHelper(src,attr) {
+    if (document.querySelector(`script[data-${attr}],script[src*="${src.split('?')[0]}"]`)) return;
     const script = document.createElement('script');
-    script.src = 'nadena-inbox.js?v=1';
-    script.dataset.nadenaInbox = '1';
+    script.src = src;
+    script.dataset[attr.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())] = '1';
     script.async = true;
     document.body.appendChild(script);
   }
@@ -124,7 +124,9 @@
 
   const observer = new MutationObserver(() => { upgradeCards(); installForumLink(); });
   function init() {
-    normalizeStructuredData(); normalizePortalCopy(); upgradeBrand(); upgradeCards(); installForumLink(); loadNadenaInbox();
+    normalizeStructuredData(); normalizePortalCopy(); upgradeBrand(); upgradeCards(); installForumLink();
+    loadHelper('nadena-inbox.js?v=1','nadena-inbox');
+    loadHelper('portal-admin-link.js?v=1','nadena-admin-link');
     const grid = document.getElementById('gamesGrid'); if (grid) observer.observe(grid, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
