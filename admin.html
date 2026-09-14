@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#070a18">
+<title>Nadena Games – Administration</title>
+<link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<header class="topbar">
+  <a class="brand" href="/"><span>N</span><strong>Nadena Games</strong></a>
+  <div class="top-actions"><span id="adminIdentity">Administration</span><button id="logoutBtn" type="button" hidden>Abmelden</button></div>
+</header>
+<main class="shell">
+  <section id="loginCard" class="card login-card">
+    <p class="eyebrow">GESCHÜTZTER BEREICH</p><h1>Nadena Administration</h1>
+    <p class="muted">Melde dich mit deinem berechtigten Nadena-Games-Konto an.</p>
+    <form id="loginForm" class="form-grid">
+      <label>E-Mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Passwort<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">Anmelden</button><div id="loginMessage" class="message"></div>
+    </form>
+  </section>
+
+  <section id="adminApp" hidden>
+    <div class="hero-row"><div><p class="eyebrow">NADENA CONTROL CENTER</p><h1>Administration</h1><p class="muted">Zentrale Nutzer- und In-Game-Kommunikation für das Nadena-Netzwerk.</p></div><button id="refreshBtn" class="secondary" type="button">↻ Aktualisieren</button></div>
+    <div class="stats">
+      <article><span>Nadena-Konten</span><strong id="nadenaUserCount">–</strong></article>
+      <article><span>Hofhain</span><strong id="hofhainStatus">Bridge folgt</strong></article>
+      <article><span>Futnaro</span><strong id="futnaroStatus">Bridge folgt</strong></article>
+      <article><span>Orvuno</span><strong id="orvunoStatus">Bridge folgt</strong></article>
+      <article><span>AstraWelle</span><strong id="astrawelleStatus">Bridge folgt</strong></article>
+    </div>
+
+    <div class="layout">
+      <aside class="card nav-card">
+        <button class="nav-item active" data-view="messages" type="button">✉️ Nachrichten</button>
+        <button class="nav-item" data-view="users" type="button">👥 Nadena-Nutzer</button>
+        <button class="nav-item" data-view="network" type="button">🌐 Spiele-Netzwerk</button>
+      </aside>
+
+      <section class="content">
+        <article id="viewMessages" class="card view active">
+          <div class="section-head"><div><p class="eyebrow">IN-GAME NEWSLETTER</p><h2>Nachricht senden</h2></div><span class="badge">Owner/Admin</span></div>
+          <form id="messageForm" class="form-grid">
+            <label>Zielgruppe
+              <select id="targetMode">
+                <option value="nadena_all">Alle Nadena-Games-Konten</option>
+                <option value="nadena_one">Ein einzelnes Nadena-Konto</option>
+                <option value="network_all">Alle Spieler aller Spiele</option>
+                <option value="hofhain_all">Alle Hofhain-Spieler</option>
+                <option value="futnaro_all">Alle Futnaro-Spieler</option>
+                <option value="orvuno_all">Alle Orvuno-Spieler</option>
+                <option value="astrawelle_all">Alle AstraWelle-Spieler</option>
+              </select>
+            </label>
+            <label id="userTargetRow" hidden>Empfänger
+              <select id="targetUser"><option value="">Spieler wählen …</option></select>
+            </label>
+            <label>Betreff<input id="messageSubject" maxlength="160" required placeholder="z. B. Wartung, Update oder Geschenk"></label>
+            <label>Nachricht<textarea id="messageBody" maxlength="10000" rows="9" required placeholder="Deine Nachricht an die Spieler …"></textarea></label>
+            <div class="send-row"><button id="sendBtn" class="primary" type="submit">Nachricht senden</button><span id="sendMessage" class="message"></span></div>
+          </form>
+          <div class="notice"><strong>Skalierbarer Versand:</strong> Rundnachrichten werden als Broadcast gespeichert, nicht tausendfach kopiert. Einzelspieler-Nachrichten werden gezielt dem jeweiligen Konto zugeordnet.</div>
+        </article>
+
+        <article id="viewUsers" class="card view">
+          <div class="section-head"><div><p class="eyebrow">NADENA ID</p><h2>Registrierte Nutzer</h2></div><div class="search"><input id="userSearch" placeholder="Name oder E-Mail"><button id="userSearchBtn" class="secondary" type="button">Suchen</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Name</th><th>E-Mail</th><th>Registriert</th><th>Letzter Login</th><th></th></tr></thead><tbody id="userRows"></tbody></table></div>
+        </article>
+
+        <article id="viewNetwork" class="card view">
+          <p class="eyebrow">NADENA NETWORK</p><h2>Spiele-Kommunikation</h2>
+          <p class="muted">Dieser zentrale Admin wird mit den Admin-Bereichen aller vier Spiele verbunden. Danach kannst du hier spielübergreifend oder je Spiel versenden, während jedes Spiel zusätzlich seinen eigenen Newsletter-Bereich behält.</p>
+          <div class="game-grid">
+            <div><b>🌾 Hofhain</b><span>Spieler einzeln / alle</span><em id="networkHofhain">wird verbunden</em></div>
+            <div><b>⚽ Futnaro</b><span>Spieler einzeln / alle</span><em id="networkFutnaro">wird verbunden</em></div>
+            <div><b>🌍 Orvuno</b><span>Spieler einzeln / alle</span><em id="networkOrvuno">wird verbunden</em></div>
+            <div><b>✨ AstraWelle</b><span>Spieler einzeln / alle</span><em id="networkAstrawelle">wird verbunden</em></div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </section>
+</main>
+<div id="toast" class="toast"></div>
+<script src="admin.js?v=1" defer></script>
+</body>
+</html>
