@@ -1,0 +1,10 @@
+{
+  "name": "nadena-home-smoke-test",
+  "screenshotEachStep": false,
+  "steps": [
+    {"action":"goto","url":"https://www.nadena-games.de/","waitUntil":"domcontentloaded","timeout":45000},
+    {"action":"assertText","selector":"body","contains":"Nadena"},
+    {"action":"screenshot","name":"nadena-home.png","fullPage":true},
+    {"action":"html","name":"nadena-home.html"}
+  ]
+}
