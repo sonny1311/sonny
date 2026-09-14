@@ -1,0 +1,59 @@
+name: Nadena Browser Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_path:
+        description: 'Path to bot job JSON in repository'
+        required: true
+        default: 'browser-bot/jobs/job.json'
+
+permissions:
+  contents: read
+
+env:
+  BOT_JOB: ${{ inputs.job_path }}
+  BOT_OUT: browser-bot/output
+
+jobs:
+  browser-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout browser-bot branch
+        uses: actions/checkout@v4
+        with:
+          ref: browser-bot
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: browser-bot/package-lock.json
+
+      - name: Install dependencies
+        working-directory: browser-bot
+        run: npm install
+
+      - name: Install Chromium
+        working-directory: browser-bot
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser job
+        id: browser
+        continue-on-error: true
+        run: node browser-bot/src/run-job.mjs
+
+      - name: Upload bot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nadena-browser-bot-${{ github.run_id }}
+          path: browser-bot/output/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail workflow when bot failed
+        if: steps.browser.outcome == 'failure'
+        run: exit 1
