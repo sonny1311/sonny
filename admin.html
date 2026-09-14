@@ -52,13 +52,21 @@
                 <option value="nadena_one">Ein einzelnes Nadena-Konto</option>
                 <option value="network_all">Alle Spieler aller Spiele</option>
                 <option value="hofhain_all">Alle Hofhain-Spieler</option>
+                <option value="hofhain_one">Ein einzelner Hofhain-Spieler</option>
                 <option value="futnaro_all">Alle Futnaro-Spieler</option>
+                <option value="futnaro_one">Ein einzelner Futnaro-Spieler</option>
                 <option value="orvuno_all">Alle Orvuno-Spieler</option>
+                <option value="orvuno_one">Ein einzelner Orvuno-Spieler</option>
                 <option value="astrawelle_all">Alle AstraWelle-Spieler</option>
+                <option value="astrawelle_one">Ein einzelner AstraWelle-Spieler</option>
               </select>
             </label>
             <label id="userTargetRow" hidden>Empfänger
               <select id="targetUser"><option value="">Spieler wählen …</option></select>
+            </label>
+            <label id="gamePlayerTargetRow" hidden>Spieler im gewählten Spiel
+              <select id="targetGamePlayer"><option value="">Spieler wählen …</option></select>
+              <small id="gamePlayerTargetStatus" class="muted"></small>
             </label>
             <label>Betreff<input id="messageSubject" maxlength="160" required placeholder="z. B. Wartung, Update oder Geschenk"></label>
             <label>Nachricht<textarea id="messageBody" maxlength="10000" rows="9" required placeholder="Deine Nachricht an die Spieler …"></textarea></label>
@@ -74,7 +82,7 @@
 
         <article id="viewNetwork" class="card view">
           <p class="eyebrow">NADENA NETWORK</p><h2>Spiele-Kommunikation</h2>
-          <p class="muted">Dieser zentrale Admin wird mit den Admin-Bereichen aller vier Spiele verbunden. Danach kannst du hier spielübergreifend oder je Spiel versenden, während jedes Spiel zusätzlich seinen eigenen Newsletter-Bereich behält.</p>
+          <p class="muted">Dieser zentrale Admin ist mit den Admin-Bereichen der vier Spiele verbunden. Du kannst hier spielübergreifend, je Spiel oder an einzelne Spieler senden, während jedes Spiel zusätzlich seinen eigenen Newsletter-Bereich behält.</p>
           <div class="game-grid">
             <div><b>🌾 Hofhain</b><span>Spieler einzeln / alle</span><em id="networkHofhain">wird verbunden</em></div>
             <div><b>⚽ Futnaro</b><span>Spieler einzeln / alle</span><em id="networkFutnaro">wird verbunden</em></div>
@@ -87,6 +95,6 @@
   </section>
 </main>
 <div id="toast" class="toast"></div>
-<script src="admin.js?v=1" defer></script>
+<script src="admin.js?v=2" defer></script>
 </body>
 </html>
