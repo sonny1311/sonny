@@ -1,0 +1,50 @@
+(()=>{
+'use strict';
+const SUPABASE_URL='https://ojhaeccyulyrwoxgeurf.supabase.co';
+const PUBLISHABLE_KEY='sb_publishable_JZH6Ker5-yZoNY6sQFhVTA_YKnImI3z';
+const SESSION_KEY='nadena_games_session_v1';
+const BRIDGES={
+ hofhain:'https://ufvjjzsrhmarzaaczruj.supabase.co/functions/v1/hofhain-admin-messages',
+ futnaro:'https://rzvddebtcxtysclxrpfm.supabase.co/functions/v1/futnaro-admin-messages',
+ orvuno:'https://ojhaeccyulyrwoxgeurf.supabase.co/functions/v1/orvuno-admin-messages',
+ astrawelle:'https://xesvfgxcqqhmsrdyfjox.supabase.co/functions/v1/astrawelle-admin-messages'
+};
+const $=id=>document.getElementById(id);
+const state={session:loadSession(),user:null,role:null,users:[]};
+let toastTimer=0;
+function loadSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(_){return null}}
+function saveSession(s){state.session=s||null;try{s?localStorage.setItem(SESSION_KEY,JSON.stringify(s)):localStorage.removeItem(SESSION_KEY)}catch(_){}}
+function h({auth=false,json=true}={}){const x={apikey:PUBLISHABLE_KEY};if(json)x['Content-Type']='application/json';if(auth&&state.session?.access_token)x.Authorization=`Bearer ${state.session.access_token}`;return x}
+async function parse(r){const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error(String(b?.message||b?.error_description||b?.error||`HTTP ${r.status}`));return b}
+function toast(text,type=''){const e=$('toast');if(!e)return;e.textContent=text;e.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.className='toast',3600)}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function fmtDate(v){if(!v)return'–';try{return new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v))}catch(_){return String(v)}}
+async function refreshSession(){if(!state.session?.refresh_token)return null;const r=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:h(),body:JSON.stringify({refresh_token:state.session.refresh_token}),cache:'no-store'});const s=await parse(r);saveSession(s);return s}
+async function token(){if(!state.session?.access_token)return null;const exp=Number(state.session.expires_at||0);if(!exp||exp-60>Math.floor(Date.now()/1000))return state.session.access_token;try{await refreshSession();return state.session?.access_token||null}catch(_){saveSession(null);return null}}
+async function authUser(){const t=await token();if(!t)return null;const r=await fetch(`${SUPABASE_URL}/auth/v1/user`,{headers:h({auth:true,json:false}),cache:'no-store'});return parse(r)}
+async function roleFor(userId){const r=await fetch(`${SUPABASE_URL}/rest/v1/nadena_admin_roles?user_id=eq.${encodeURIComponent(userId)}&select=role&limit=1`,{headers:h({auth:true,json:false}),cache:'no-store'});const rows=await parse(r);return Array.isArray(rows)&&rows[0]?.role?rows[0].role:null}
+async function rpc(name,args={}){const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:h({auth:true}),body:JSON.stringify(args),cache:'no-store'});return parse(r)}
+async function bridge(game,action,payload={}){const t=await token();if(!t)throw new Error('Sitzung abgelaufen');const url=BRIDGES[game];if(!url)throw new Error('Bridge fehlt');const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${t}`},body:JSON.stringify({action,...payload}),cache:'no-store'});return parse(r)}
+function showLogin(message=''){state.user=null;state.role=null;$('adminApp').hidden=true;$('loginCard').hidden=false;$('logoutBtn').hidden=true;$('adminIdentity').textContent='Administration';$('loginMessage').textContent=message}
+function showAdmin(){ $('loginCard').hidden=true;$('adminApp').hidden=false;$('logoutBtn').hidden=false;$('adminIdentity').textContent=`${state.user?.email||'Admin'} · ${state.role}` }
+async function restore(){if(!state.session){showLogin();return}try{const u=await authUser();if(!u)throw new Error('Sitzung abgelaufen');const role=await roleFor(u.id);if(!role)throw new Error('Keine Admin-Berechtigung');state.user=u;state.role=role;showAdmin();await loadAll()}catch(e){saveSession(null);showLogin(e.message||'Bitte erneut anmelden.')}}
+async function login(ev){ev.preventDefault();const msg=$('loginMessage');msg.textContent='Anmeldung läuft …';msg.className='message';try{const email=$('loginEmail').value.trim(),password=$('loginPassword').value;const r=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:h(),body:JSON.stringify({email,password}),cache:'no-store'});const s=await parse(r);saveSession(s);const u=await authUser(),role=await roleFor(u.id);if(!role)throw new Error('Dieses Nadena-Konto hat keine Admin-Berechtigung.');state.user=u;state.role=role;showAdmin();await loadAll()}catch(e){saveSession(null);msg.textContent=e.message||'Anmeldung fehlgeschlagen.';msg.className='message error'}}
+async function loadUsers(search=''){try{const rows=await rpc('nadena_admin_list_users',{p_limit:500,p_search:search});state.users=Array.isArray(rows)?rows:[];$('nadenaUserCount').textContent=String(state.users.length);renderUsers();renderTargetUsers()}catch(e){toast(`Nutzer konnten nicht geladen werden: ${e.message}`,'error')}}
+function renderUsers(){const body=$('userRows');if(!body)return;if(!state.users.length){body.innerHTML='<tr><td colspan="5">Keine Nutzer gefunden.</td></tr>';return}body.innerHTML=state.users.map(u=>`<tr><td>${escapeHtml(u.display_name||'Spieler')}</td><td>${escapeHtml(u.email||'')}</td><td>${escapeHtml(fmtDate(u.created_at))}</td><td>${escapeHtml(fmtDate(u.last_sign_in_at))}</td><td><button class="table-action" type="button" data-message-user="${escapeHtml(u.user_id)}">Nachricht</button></td></tr>`).join('');body.querySelectorAll('[data-message-user]').forEach(btn=>btn.addEventListener('click',()=>{selectView('messages');$('targetMode').value='nadena_one';syncTargetMode();$('targetUser').value=btn.dataset.messageUser;$('messageSubject').focus()}))}
+function renderTargetUsers(){const s=$('targetUser');if(!s)return;s.innerHTML='<option value="">Spieler wählen …</option>'+state.users.map(u=>`<option value="${escapeHtml(u.user_id)}">${escapeHtml(u.display_name||u.email||'Spieler')} · ${escapeHtml(u.email||'')}</option>`).join('')}
+async function probeBridges(){for(const game of Object.keys(BRIDGES)){const el=$(game==='astrawelle'?'astrawelleStatus':`${game}Status`);const net=$(`network${game[0].toUpperCase()+game.slice(1)}`);try{const x=await bridge(game,'health');const label=x?.ok?`${Number(x.players||0).toLocaleString('de-DE')} Spieler`:'nicht bereit';if(el)el.textContent=label;if(net){net.textContent=x?.ok?'verbunden':'nicht bereit';net.style.color=x?.ok?'#7ce7a8':'#ff8b9d'}}catch(_){if(el)el.textContent='Bridge wird eingerichtet';if(net){net.textContent='wird verbunden';net.style.color='#ffd88c'}}}}
+async function loadAll(){await Promise.all([loadUsers(''),probeBridges()])}
+function syncTargetMode(){const one=$('targetMode').value==='nadena_one';$('userTargetRow').hidden=!one;$('sendBtn').textContent=$('targetMode').value==='network_all'?'An alle Spiele senden':'Nachricht senden'}
+async function sendMessage(ev){ev.preventDefault();const mode=$('targetMode').value,subject=$('messageSubject').value.trim(),body=$('messageBody').value.trim(),out=$('sendMessage'),btn=$('sendBtn');if(!subject||!body)return;btn.disabled=true;out.className='message';out.textContent='Versand läuft …';try{
+ if(mode==='nadena_all')await rpc('nadena_admin_send_message',{p_target_user_id:null,p_subject:subject,p_body:body,p_kind:'news'});
+ else if(mode==='nadena_one'){const uid=$('targetUser').value;if(!uid)throw new Error('Bitte einen Empfänger wählen.');await rpc('nadena_admin_send_message',{p_target_user_id:uid,p_subject:subject,p_body:body,p_kind:'admin'});}
+ else if(mode==='network_all'){
+   const games=['hofhain','futnaro','orvuno','astrawelle'];const result=await Promise.allSettled(games.map(game=>bridge(game,'send_all',{subject,body})));const failed=result.filter(x=>x.status==='rejected');if(failed.length)throw new Error(`${games.length-failed.length} von ${games.length} Spielen erreicht. Fehlende Bridge(s) werden noch eingerichtet.`);
+ }
+ else if(/_all$/.test(mode)){const game=mode.replace(/_all$/,'');await bridge(game,'send_all',{subject,body});}
+ else throw new Error('Unbekannte Zielgruppe.');
+ out.textContent='Nachricht wurde gespeichert bzw. verteilt.';out.className='message ok';toast('Nachricht erfolgreich gesendet.','ok');$('messageSubject').value='';$('messageBody').value='';
+ }catch(e){out.textContent=e.message||'Versand fehlgeschlagen.';out.className='message error';toast(out.textContent,'error')}finally{btn.disabled=false}}
+function selectView(view){document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));const id='view'+view[0].toUpperCase()+view.slice(1);$(id)?.classList.add('active')}
+$('loginForm').addEventListener('submit',login);$('logoutBtn').addEventListener('click',()=>{saveSession(null);showLogin('Du bist abgemeldet.')});$('refreshBtn').addEventListener('click',loadAll);$('messageForm').addEventListener('submit',sendMessage);$('targetMode').addEventListener('change',syncTargetMode);$('userSearchBtn').addEventListener('click',()=>loadUsers($('userSearch').value.trim()));$('userSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loadUsers($('userSearch').value.trim())}});document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>selectView(b.dataset.view)));syncTargetMode();restore();
+})();
