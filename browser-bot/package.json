@@ -1,0 +1,12 @@
+{
+  "name": "nadena-browser-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run": "node src/run-job.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
