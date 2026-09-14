@@ -69,6 +69,15 @@
     });
   }
 
+  function loadNadenaInbox() {
+    if (document.querySelector('script[data-nadena-inbox],script[src*="nadena-inbox.js"]')) return;
+    const script = document.createElement('script');
+    script.src = 'nadena-inbox.js?v=1';
+    script.dataset.nadenaInbox = '1';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+
   const slugFor = (card) => {
     const title = (card.querySelector('h3')?.textContent || '').trim().toLowerCase();
     if (title.includes('hofhain')) return 'hofhain';
@@ -115,7 +124,7 @@
 
   const observer = new MutationObserver(() => { upgradeCards(); installForumLink(); });
   function init() {
-    normalizeStructuredData(); normalizePortalCopy(); upgradeBrand(); upgradeCards(); installForumLink();
+    normalizeStructuredData(); normalizePortalCopy(); upgradeBrand(); upgradeCards(); installForumLink(); loadNadenaInbox();
     const grid = document.getElementById('gamesGrid'); if (grid) observer.observe(grid, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
