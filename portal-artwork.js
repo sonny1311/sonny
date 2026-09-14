@@ -1,8 +1,7 @@
 (() => {
   'use strict';
-  const HOFHAIN_GENERATED = '__hofhain_generated__';
   const GAME = {
-    hofhain: { image: HOFHAIN_GENERATED, fallback: '', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
+    hofhain: { image: 'assets/hofhain.webp?v=6', fallback: 'assets/hofhain.jpg?v=6', available: true, label: 'Jetzt spielen', launch: 'https://www.hofhain.de/' },
     orvuno: { image: 'assets/orvuno.webp?v=5', fallback: 'assets/orvuno.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.orvuno.de/' },
     futnaro: { image: 'assets/futnaro.webp?v=5', fallback: 'assets/futnaro.jpg', available: false, label: 'Kommt bald', launch: 'https://www.futnaro.de/' },
     astrawelle: { image: 'assets/astrawelle.webp?v=5', fallback: 'assets/astrawelle.jpg', available: true, label: 'Jetzt spielen', launch: 'https://www.astrawelle.de/' }
@@ -11,18 +10,6 @@
   const ASTRA_NEW = 'https://www.astrawelle.de';
   const NADENA_LOGO = 'https://www.nadena-games.de/assets/nadena-games-logo.jpg';
   const FORUM_URL = 'https://forum.nadena-games.de/';
-  let hofhainArtworkPromise = null;
-
-  function loadHofhainArtwork() {
-    if (hofhainArtworkPromise) return hofhainArtworkPromise;
-    hofhainArtworkPromise = Promise.all(
-      [0, 1, 2, 3, 4, 5].map((part) => fetch(`assets/hofhain-eckig.b64.${part}?v=1`, { cache: 'force-cache' }).then((response) => {
-        if (!response.ok) throw new Error(`hofhain_artwork_part_${part}`);
-        return response.text();
-      }))
-    ).then((parts) => `data:image/webp;base64,${parts.join('').replace(/\s+/g, '')}`);
-    return hofhainArtworkPromise;
-  }
 
   function normalizeStructuredData() {
     const normalize = (value) => {
@@ -91,7 +78,7 @@
     const img = document.createElement('img'); img.alt = ''; img.loading = eager ? 'eager' : 'lazy'; img.decoding = 'async';
     const fail = () => img.closest('.game-art')?.classList.add('image-failed');
     img.onerror = () => { if (fallback && img.dataset.fallback !== '1') { img.dataset.fallback = '1'; img.src = fallback; } else fail(); };
-    if (src === HOFHAIN_GENERATED) loadHofhainArtwork().then((url) => { img.src = url; }).catch(fail); else img.src = src;
+    img.src = src;
     return img;
   }
 
