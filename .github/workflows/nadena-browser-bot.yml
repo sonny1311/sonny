@@ -1,18 +1,21 @@
 name: Nadena Browser Bot
 
 on:
+  push:
+    branches:
+      - browser-bot
+    paths:
+      - 'browser-bot/jobs/job.json'
+      - 'browser-bot/src/**'
+      - 'browser-bot/package.json'
+      - '.github/workflows/nadena-browser-bot.yml'
   workflow_dispatch:
-    inputs:
-      job_path:
-        description: 'Path to bot job JSON in repository'
-        required: true
-        default: 'browser-bot/jobs/job.json'
 
 permissions:
   contents: read
 
 env:
-  BOT_JOB: ${{ inputs.job_path }}
+  BOT_JOB: browser-bot/jobs/job.json
   BOT_OUT: browser-bot/output
 
 jobs:
@@ -29,8 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: browser-bot/package-lock.json
 
       - name: Install dependencies
         working-directory: browser-bot
