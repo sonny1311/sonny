@@ -3,6 +3,7 @@
 
   const SUPABASE_URL = 'https://ojhaeccyulyrwoxgeurf.supabase.co';
   const PUBLISHABLE_KEY = 'sb_publishable_JZH6Ker5-yZoNY6sQFhVTA_YKnImI3z';
+  const LOCAL_API = '/api/nadena';
   const SESSION_KEY = 'nadena_games_session_v1';
   const PUBLISHED_GAMES = new Set(['hofhain', 'futnaro', 'orvuno', 'astrawelle']);
   const FALLBACK_GAMES = [
@@ -105,9 +106,8 @@
   }
 
   async function loadGames() {
-    const query = 'nadena_games?active=eq.true&select=slug,title,description,launch_url,cover_emoji,active,sso_ready,sort_order&order=sort_order.asc,slug.asc';
     try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, { headers: headers({ json: false }), cache: 'no-store' });
+      const response = await fetch(`${LOCAL_API}/games`, { cache: 'no-store' });
       const games = await parseResponse(response);
       state.games = Array.isArray(games) && games.length ? games : FALLBACK_GAMES;
       $('gamesMessage').textContent = '';
@@ -125,18 +125,17 @@
     state.links = [];
     if (!state.session) { renderAccount(); return; }
     try {
-      const user = await authUser();
-      if (!user) throw new Error('session_expired');
-      state.user = user;
-      const profileUrl = `${SUPABASE_URL}/rest/v1/nadena_profiles?user_id=eq.${encodeURIComponent(user.id)}&select=user_id,display_name,avatar_url,language_code&limit=1`;
-      const linksUrl = `${SUPABASE_URL}/rest/v1/nadena_game_links?nadena_user_id=eq.${encodeURIComponent(user.id)}&select=game_slug,external_user_id,linked_at,last_login_at`;
-      const [profileRes, linksRes] = await Promise.all([
-        fetch(profileUrl, { headers: headers({ auth: true, json: false }), cache: 'no-store' }),
-        fetch(linksUrl, { headers: headers({ auth: true, json: false }), cache: 'no-store' }),
-      ]);
-      const [profiles, links] = await Promise.all([parseResponse(profileRes), parseResponse(linksRes)]);
-      state.profile = Array.isArray(profiles) ? profiles[0] || null : null;
-      state.links = Array.isArray(links) ? links : [];
+      const token = await ensureAccessToken();
+      if (!token) throw new Error('session_expired');
+      const response = await fetch(`${LOCAL_API}/account`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      const account = await parseResponse(response);
+      state.user = account?.user || null;
+      state.profile = account?.profile || null;
+      state.links = Array.isArray(account?.links) ? account.links : [];
+      if (!state.user) throw new Error('session_expired');
     } catch (error) {
       console.warn('[Nadena] Sitzung konnte nicht geladen werden', error);
       saveSession(null);
@@ -331,17 +330,21 @@
   }
 
   async function saveProfile(form) {
-    if (!state.user || !await ensureAccessToken()) return;
+    if (!state.user) return;
+    const token = await ensureAccessToken();
+    if (!token) return;
     const displayName = String(new FormData(form).get('displayName') || '').trim().slice(0, 40);
     if (!displayName) { toast('Bitte gib einen Anzeigenamen ein.'); return; }
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/nadena_profiles?user_id=eq.${encodeURIComponent(state.user.id)}`, {
+    const response = await fetch(`${LOCAL_API}/profile`, {
       method: 'PATCH',
-      headers: headers({ auth: true, prefer: 'return=representation' }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ display_name: displayName }),
       cache: 'no-store',
     });
-    const rows = await parseResponse(response);
-    state.profile = Array.isArray(rows) ? rows[0] || state.profile : state.profile;
+    state.profile = await parseResponse(response);
     renderAccount();
     toast('Dein Nadena-Profil wurde gespeichert.');
   }
