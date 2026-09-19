@@ -1,15 +1,13 @@
 (()=>{
 'use strict';
 if(window.__NADENA_PORTAL_ADMIN_LINK_V1__)return;window.__NADENA_PORTAL_ADMIN_LINK_V1__=true;
-const URL='https://ojhaeccyulyrwoxgeurf.supabase.co';
-const KEY='sb_publishable_JZH6Ker5-yZoNY6sQFhVTA_YKnImI3z';
+const API='/api/nadena';
 const SESSION_KEY='nadena_games_session_v1';
 function session(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}}
 async function check(){
  const s=session(),token=s?.access_token;if(!token){remove();return false}
  try{
-  const u=await fetch(URL+'/auth/v1/user',{headers:{apikey:KEY,authorization:'Bearer '+token},cache:'no-store'});if(!u.ok){remove();return false}const user=await u.json();
-  const r=await fetch(URL+'/rest/v1/nadena_admin_roles?user_id=eq.'+encodeURIComponent(user.id)+'&select=role&limit=1',{headers:{apikey:KEY,authorization:'Bearer '+token},cache:'no-store'});if(!r.ok){remove();return false}const rows=await r.json();const role=String(rows?.[0]?.role||'');
+  const r=await fetch(API+'/admin-role',{headers:{authorization:'Bearer '+token},cache:'no-store'});if(!r.ok){remove();return false}const data=await r.json();const role=String(data?.role||'');
   if(!['owner','admin','support'].includes(role)){remove();return false}install(role);return true;
  }catch(_){remove();return false}
 }
